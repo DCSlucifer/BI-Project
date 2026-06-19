@@ -35,7 +35,6 @@ Data warehouse sử dụng star schema với một bảng fact và năm bảng d
 .
 |-- DataMining/     Mã Python và kết quả data mining
 |-- dataset/        Bộ dữ liệu Superstore gốc
-|-- docs/           Tài liệu thiết kế và kế hoạch triển khai
 |-- Excel/          File Excel PivotTable
 |-- mdx/            Truy vấn MDX
 |-- PowerBI/        File Power BI Desktop
@@ -190,4 +189,4 @@ Sau khi hoàn tất ETL và triển khai cube, nên kiểm tra các điểm sau:
 
 ## Ghi chú về quản lý mã nguồn
 
-File `.gitignore` được cấu hình để loại bỏ cache, file build, file tạm và cấu hình local. Các deliverable chính như dataset CSV, Power BI, Excel, SQL script, MDX, SSIS source, SSAS source và kết quả trong `DataMining/outputs` không bị ignore để có thể lưu cùng dự án khi cần nộp bài hoặc chia sẻ.
+File `.gitignore` được cấu hình để loại bỏ cache, file build, file tạm, cấu hình local và ghi chú lập kế hoạch nội bộ. Các deliverable chính như dataset CSV, Power BI, Excel, SQL script, MDX, SSIS source, SSAS source và kết quả trong `DataMining/outputs` không bị ignore để có thể lưu cùng dự án khi cần nộp bài hoặc chia sẻ.

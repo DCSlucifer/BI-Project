@@ -67,3 +67,6 @@ htmlcov/
 .env.*
 *.local
 secrets.*
+
+# Local planning notes
+docs/

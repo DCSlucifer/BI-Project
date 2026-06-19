@@ -1,0 +1,12 @@
+﻿<?xml version="1.0"?>
+<DTS:ConnectionManager xmlns:DTS="www.microsoft.com/SqlServer/Dts"
+  DTS:ObjectName="LUCIFER.SuperstoreDW"
+  DTS:DTSID="{528BA354-1D07-42D4-94B6-073E95667FCF}"
+  DTS:CreationName="OLEDB">
+  <DTS:ObjectData>
+    <DTS:ConnectionManager
+      DTS:ConnectRetryCount="1"
+      DTS:ConnectRetryInterval="5"
+      DTS:ConnectionString="Data Source=LUCIFER;Initial Catalog=SuperstoreDW;Provider=MSOLEDBSQL.1;Integrated Security=SSPI;Application Name=SSIS-Integration Services Project1-{528BA354-1D07-42D4-94B6-073E95667FCF}LUCIFER.SuperstoreDW;Auto Translate=False;" />
+  </DTS:ObjectData>
+</DTS:ConnectionManager>

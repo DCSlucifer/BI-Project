@@ -1,0 +1,84 @@
+/* =====================================================================
+   queries.mdx — 10 analytical questions answered with MDX
+   Run in SSMS: Connect to Analysis Services -> SuperstoreSSAS DB -> New MDX Query.
+
+   Names below were CORRECTED to match the actual deployed cube:
+     Cube           : [Superstore DW]
+     Dimensions     : [Order Date], [Ship Date] (role-playing),
+                      [Dim Product], [Dim Customer], [Dim Geography], [Dim Ship Mode]
+     User hierarchies: [Calendar], [Product], [Customer], [Geography]
+     Measures       : [Sales] [Quantity] [Discount] [Profit] [Delivery Days] [Fact Sales Count]
+     Calc members   : [Profit Margin], [Avg Delivery Days]  (added to the cube)
+   Q5 and Q10 use those calculated members directly. If SSMS reports a member
+   is "not found", the calc-member name in your cube differs from the name here
+   ([Profit Margin] / [Avg Delivery Days]) — rename to match.
+   ===================================================================== */
+
+/* Q1: Sales & Profit by Year and Quarter */
+SELECT { [Measures].[Sales], [Measures].[Profit] } ON COLUMNS,
+NON EMPTY [Order Date].[Calendar].[Year].MEMBERS * [Order Date].[Calendar].[Quarter].MEMBERS ON ROWS
+FROM [Superstore DW];
+
+/* Q2: Sales & Profit by State */
+SELECT { [Measures].[Sales], [Measures].[Profit] } ON COLUMNS,
+NON EMPTY [Dim Geography].[Geography].[State].MEMBERS ON ROWS
+FROM [Superstore DW];
+
+/* Q3: Top 10 Products by Sales */
+SELECT [Measures].[Sales] ON COLUMNS,
+TOPCOUNT([Dim Product].[Product].[Product Name].MEMBERS, 10, [Measures].[Sales]) ON ROWS
+FROM [Superstore DW];
+
+/* Q4: Sales & Profit by Sub-Category */
+SELECT { [Measures].[Sales], [Measures].[Profit] } ON COLUMNS,
+NON EMPTY [Dim Product].[Product].[Sub Category].MEMBERS ON ROWS
+FROM [Superstore DW];
+
+/* Q5: Profit & Profit Margin by Customer Segment
+   (uses the [Profit Margin] calculated member now defined in the cube) */
+SELECT { [Measures].[Profit], [Measures].[Profit Margin] } ON COLUMNS,
+[Dim Customer].[Customer].[Segment].MEMBERS ON ROWS
+FROM [Superstore DW];
+
+/* Q6: Discount vs Profit by Category */
+SELECT { [Measures].[Discount], [Measures].[Profit] } ON COLUMNS,
+[Dim Product].[Product].[Category].MEMBERS ON ROWS
+FROM [Superstore DW];
+
+/* Q7: Sales & order-line count by Ship Mode */
+SELECT { [Measures].[Sales], [Measures].[Fact Sales Count] } ON COLUMNS,
+[Dim Ship Mode].[Ship Mode].[Ship Mode].MEMBERS ON ROWS
+FROM [Superstore DW];
+
+/* Q8: Year-over-Year Sales growth */
+WITH MEMBER [Measures].[Sales PY] AS
+  ([Measures].[Sales], PARALLELPERIOD([Order Date].[Calendar].[Year], 1, [Order Date].[Calendar].CurrentMember))
+MEMBER [Measures].[YoY %] AS
+  IIF([Measures].[Sales PY] = 0, NULL,
+      ([Measures].[Sales] - [Measures].[Sales PY]) / [Measures].[Sales PY]),
+  FORMAT_STRING = 'Percent'
+SELECT { [Measures].[Sales], [Measures].[Sales PY], [Measures].[YoY %] } ON COLUMNS,
+[Order Date].[Calendar].[Year].MEMBERS ON ROWS
+FROM [Superstore DW];
+
+/* Q9: Top 10 Customers by Sales */
+SELECT [Measures].[Sales] ON COLUMNS,
+TOPCOUNT([Dim Customer].[Customer].[Customer Name].MEMBERS, 10, [Measures].[Sales]) ON ROWS
+FROM [Superstore DW];
+
+/* Q10: Avg Delivery Days by Region and Ship Mode
+   (uses the [Avg Delivery Days] calculated member now defined in the cube) */
+SELECT [Dim Ship Mode].[Ship Mode].[Ship Mode].MEMBERS ON COLUMNS,
+[Dim Geography].[Geography].[Region].MEMBERS ON ROWS
+WHERE [Measures].[Avg Delivery Days]
+FROM [Superstore DW];
+
+/* =====================================================================
+   Reference — the two calculated members defined in the cube
+   (Calculations tab in Visual Studio):
+
+   [Profit Margin]      = IIF([Measures].[Sales]=0, NULL,
+                              [Measures].[Profit]/[Measures].[Sales])   -- Format: Percent
+   [Avg Delivery Days]  = IIF([Measures].[Fact Sales Count]=0, NULL,
+                              [Measures].[Delivery Days]/[Measures].[Fact Sales Count])
+   ===================================================================== */

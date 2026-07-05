@@ -1,130 +1,288 @@
-# Giải thích 2 thuật toán Data Mining — tài liệu ôn bảo vệ
+# Data Mining Algorithm Explanation - Superstore
 
-> Dựa trên kết quả chạy thật của `data_mining.py`.
-> Triết lý chung: chọn **1 thuật toán có giám sát (supervised) + 1 không giám sát (unsupervised)** để bao quát cả hai nhánh chính của data mining → đây là điểm mạnh nên nói đầu tiên với mentor.
+This document explains the two data mining algorithms used in the Superstore BI final project. It is written as an academic defense note: the emphasis is not only on what the models produced, but also on why the methods are appropriate, how they were validated, and how the results should be interpreted in a business intelligence context.
 
----
+The project uses two complementary data mining approaches:
 
-## THUẬT TOÁN 1 — Decision Tree (Phân lớp có giám sát)
+1. **Decision Tree Classification**: a supervised learning method used to classify order lines as profitable or loss-making and to extract interpretable business rules.
+2. **K-Means RFM Segmentation**: an unsupervised learning method used to segment customers based on recency, frequency, and monetary behavior.
 
-### Bài toán
-Dự đoán một **dòng đơn hàng** sẽ **Lãi (Profit > 0)** hay **Lỗ**, dựa trên:
-- Biến số: `Sales`, `Quantity`, `Discount`
-- Biến phân loại (one-hot): `Category`, `Sub-Category`, `Region`, `Segment`, `Ship Mode`
-
-Đây là **phân lớp nhị phân (binary classification)**. Random Forest được train thêm để **đối chứng**.
-
-### Vì sao chọn Decision Tree
-1. **Diễn giải được (white-box):** bài toán kinh doanh cần biết *VÌ SAO* một đơn lỗ, không chỉ dự đoán. Cây cho ra luật if-then rõ ràng (vd: `Discount > 0.2 → Lỗ`). Mentor rất thích điều này.
-2. **Không cần chuẩn hóa dữ liệu** (khác K-Means) — cây chia theo ngưỡng nên không quan tâm thang đo.
-3. **Xử lý cả biến số lẫn phân loại**, bắt được **quan hệ phi tuyến** và **tương tác** giữa các biến.
-4. Train nhanh, nhẹ.
-
-### Điểm mạnh
-- Trực quan, vẽ được, giải thích từng quyết định.
-- Cho ra **feature importance** — biết yếu tố nào quyết định lãi/lỗ.
-- Không cần scale, ít tiền xử lý.
-
-### Điểm yếu (phải thuộc)
-- **Dễ overfit** nếu cây sâu → ta giới hạn `max_depth=4` để chống overfit + dễ đọc.
-- **Variance cao / không ổn định:** đổi chút dữ liệu → cây khác hẳn. → Chính là lý do đối chứng bằng **Random Forest** (ensemble nhiều cây, lấy trung bình → giảm variance).
-- Ranh giới quyết định dạng **bậc thang** (song song trục), không mượt.
-- **Thiên về lớp đa số** khi dữ liệu mất cân bằng (đúng case này).
-
-### Random Forest dùng để làm gì
-Ensemble 200 cây (bagging + chọn ngẫu nhiên feature). Thường **chính xác & ổn định hơn** 1 cây.
-→ Kết quả: **RF = 0.9428 ≈ DT = 0.944**. RF *không* tốt hơn → nghĩa là **quan hệ trong dữ liệu khá đơn giản, 1 cây depth-4 đã đủ**. Lập luận với mentor: *"Vì mô hình đơn giản đã giải thích tốt, em ưu tiên Decision Tree vì tính diễn giải."*
-
-### Giải thích OUTPUT (số thật)
-
-**1) Class balance: 80.6% Lãi / 19.4% Lỗ → DỮ LIỆU MẤT CÂN BẰNG.**
-→ Đây là điểm mentor HAY HỎI NHẤT. Vì 80.6% là lãi, một mô hình "ngu" đoán *tất cả là lãi* đã đạt 80.6% accuracy (gọi là **baseline / no-information rate**). Nên **accuracy đơn thuần dễ gây hiểu nhầm** — phải nhìn precision/recall/F1 cho lớp thiểu số (Lỗ).
-
-**2) Accuracy = 0.944 (94.4%).** Cao hơn baseline 80.6% đáng kể → mô hình thực sự học được, không phải đoán bừa.
-
-**3) Confusion Matrix** (hàng = thực tế, cột = dự đoán; lớp 0 = Lỗ, lớp 1 = Lãi), tập test 2.499 dòng:
-
-|  | Đoán LỖ (0) | Đoán LÃI (1) |
-|---|---|---|
-| **Thực tế LỖ (0)** | **369** (đúng) | 115 (bỏ sót lỗ) |
-| **Thực tế LÃI (1)** | 25 (báo nhầm lỗ) | **1990** (đúng) |
-
-- 369 = đơn lỗ bắt đúng; 115 = đơn lỗ bị bỏ sót (tưởng lãi); 25 = đơn lãi bị báo nhầm thành lỗ; 1990 = đơn lãi đúng.
-
-**4) Precision / Recall / F1:**
-- **Lớp Lỗ (0):** precision **0.94** (trong các đơn mô hình nói "lỗ", 94% đúng), recall **0.76** (bắt được 76% số đơn lỗ thực tế, **bỏ sót 24% = 115/484**), F1 **0.84**.
-- **Lớp Lãi (1):** precision **0.95**, recall **0.99** (gần như bắt hết), F1 **0.97**.
-- **Macro avg = 0.90** (trung bình KHÔNG trọng số 2 lớp — chỉ số công bằng cho dữ liệu lệch). **Weighted avg = 0.94**.
-→ Kết luận: mô hình rất tốt với lớp Lãi, **kém hơn ở lớp Lỗ** (recall 0.76) do mất cân bằng → bỏ sót một phần đơn lỗ.
-
-**5) `feature_importance.png`:** xếp hạng biến quan trọng. Với Superstore thường **Discount** đứng đầu (giảm giá cao → lỗ), tiếp theo là vài `Sub-Category` (Tables, Bookcases, Binders hay lỗ), `Sales`, `Quantity`. → **Hãy mở file này xem top biến của chính bạn để nói cụ thể.**
-
-**6) `decision_tree.png`:** đọc từ gốc xuống. Mỗi node có: điều kiện chia (vd `Discount <= 0.2`), `gini` (độ lẫn lớp, 0 = thuần), `samples`, `value=[số lỗ, số lãi]`, `class`. Lần theo nhánh đến lá `class = Loss` chính là **"công thức" của đơn lỗ**.
-
-### Câu mentor có thể hỏi + cách trả lời
-- *"Accuracy 94% có cao thật không?"* → So baseline 80.6%; nhìn thêm recall lớp Lỗ (0.76) mới đánh giá đúng.
-- *"Dữ liệu mất cân bằng xử lý sao?"* → Có thể dùng `class_weight='balanced'`, SMOTE, chỉnh threshold; ở đây ta dùng `stratify` để giữ đúng tỷ lệ lớp khi chia train/test.
-- *"Có rò rỉ dữ liệu (data leakage) không?"* → Không. `Sales`, `Discount` đều **biết tại thời điểm đặt hàng**, còn Profit phụ thuộc giá vốn + chiết khấu → Profit **không suy ra trực tiếp** từ feature → hợp lệ.
-- *"Vì sao max_depth=4?"* → chống overfit + cây đủ nhỏ để đọc/giải thích.
-- *"Cải thiện thế nào?"* → cross-validation, cân bằng lớp, thêm feature (lợi nhuận/đơn vị), tuning hyperparameter.
+This combination is methodologically balanced because it covers both major branches of data mining: supervised prediction and unsupervised pattern discovery.
 
 ---
 
-## THUẬT TOÁN 2 — K-Means trên RFM (Phân cụm không giám sát)
+## 1. Decision Tree Classification
 
-### Bài toán
-Nhóm **793 khách hàng** theo hành vi mua, dùng 3 đặc trưng **RFM**:
-- **Recency** = số ngày từ lần mua **gần nhất** (càng NHỎ càng tốt).
-- **Frequency** = số đơn hàng riêng biệt (`nunique Order ID`) (càng CAO càng tốt).
-- **Monetary** = tổng `Sales` (càng CAO càng tốt).
+### 1.1 Problem Formulation
 
-Mốc tính Recency: `snapshot = max(Order Date) + 1 ngày`.
+The classification task predicts whether an individual order line is profitable:
 
-### Vì sao chọn RFM + K-Means
-1. **RFM** là khung **chuẩn ngành** đo giá trị khách hàng → dễ thuyết phục về kinh doanh.
-2. **K-Means** là thuật toán phân cụm phổ biến nhất: nhanh, đơn giản, dễ giải thích, hợp khi cụm dạng cầu.
-3. Là **unsupervised** (không cần nhãn) — đúng bản chất "khám phá phân khúc mà ta chưa biết trước".
+```text
+Profitable = 1 if Profit > 0
+Loss       = 0 if Profit <= 0
+```
 
-### Vì sao PHẢI chuẩn hóa (StandardScaler) — mentor hay hỏi
-R, F, M khác đơn vị và thang đo cực mạnh: Monetary tới hàng **nghìn $**, Frequency vài chục, Recency vài trăm ngày. K-Means dùng **khoảng cách Euclid** → nếu không chuẩn hóa, biến thang lớn (Monetary) sẽ **át** hai biến kia. Chuẩn hóa z-score đưa cả 3 về cùng thang → công bằng.
+The target variable is derived from `Profit`, while `Profit` itself is not used as an input feature. The selected predictors are variables that are available at the order-line level:
 
-### Vì sao k = 4 (Elbow method)
-`elbow.png` vẽ **inertia** (tổng bình phương khoảng cách trong cụm) theo k = 1..8. Inertia luôn giảm khi k tăng; ta chọn **"khuỷu tay"** — nơi inertia bắt đầu giảm chậm lại. Chọn **k=4** vì vừa nằm vùng khuỷu, vừa cho **4 phân khúc có ý nghĩa kinh doanh rõ ràng**. (Tham số `n_init=10`: chạy 10 lần với khởi tạo khác nhau lấy kết quả tốt nhất; `random_state=42`: tái lập được.)
+- Numeric predictors: `Sales`, `Quantity`, and `Discount`.
+- Categorical predictors: `Category`, `Sub-Category`, `Region`, `Segment`, and `Ship Mode`.
 
-### Điểm mạnh K-Means
-- Nhanh, scale tốt với dữ liệu lớn, đơn giản, dễ diễn giải.
-- Hội tụ nhanh.
+The categorical predictors are transformed through one-hot encoding. The train/test split uses a 75/25 ratio with stratification, which preserves the original class distribution in both training and testing subsets.
 
-### Điểm yếu (phải thuộc)
-- **Phải chọn k trước** (ta dùng Elbow; có thể bổ sung **Silhouette score** cho chặt hơn).
-- **Nhạy với khởi tạo** → khắc phục bằng `n_init=10`.
-- Giả định **cụm hình cầu, kích thước tương đương** — sai nếu cụm dài/khác mật độ.
-- **Nhạy với outlier:** khách chi cực lớn kéo lệch tâm cụm (Monetary có đuôi dài — xem Cluster 2).
-- Chỉ dùng **biến số**.
-- Thay thế khả dĩ: **Hierarchical clustering, DBSCAN, GMM**.
+### 1.2 Rationale for Selecting a Decision Tree
 
-### Giải thích OUTPUT (số thật — 793 khách, 4 cụm)
+A Decision Tree is appropriate for this project for four reasons.
 
-| Cluster | Recency | Frequency | Monetary | Count | Tên phân khúc | Hành động |
-|---|---|---|---|---|---|---|
-| **2** | 123.7 | 8.3 | **9.479** | 64 | **VIP / Champions** — chi cao gấp ~3 lần | Chăm sóc đặc biệt, loyalty, upsell |
-| **0** | **72.7** | **8.5** | 3.322 | 298 | **Trung thành / Active** — mua gần đây & thường xuyên nhất | Giữ chân, cross-sell, nâng lên VIP |
-| **1** | 101.2 | 4.7 | 1.669 | 335 | **Phổ thông / Trung bình** — đông nhất | Khuyến mãi kích cầu, tăng tần suất |
-| **3** | **559.5** | 3.7 | 1.470 | 96 | **Rời bỏ / Lost** — ~1.5 năm không mua | Chiến dịch win-back, hoặc buông nếu chi phí cao |
+First, it is interpretable. Unlike many black-box models, a Decision Tree produces explicit if-then decision rules. This is important in a BI project because the objective is not only to predict loss risk, but also to explain which business conditions lead to loss.
 
-Tổng 64 + 298 + 335 + 96 = **793** ✓
+Second, it can model non-linear relationships and interactions between predictors. For example, the effect of discount may depend on the product category or sub-category.
 
-`segments.png`: scatter **Frequency (x) vs Monetary (y)** tô màu theo cụm — Cluster 2 nằm trên cao (Monetary lớn), Cluster 3 dồn dưới thấp.
+Third, it does not require numerical standardization. Tree-based models split variables by thresholds and are not distance-based, unlike K-Means.
 
-### Câu mentor có thể hỏi + cách trả lời
-- *"Vì sao k=4?"* → Elbow + ý nghĩa kinh doanh (4 phân khúc rõ ràng).
-- *"Vì sao chuẩn hóa?"* → khoảng cách Euclid, tránh Monetary lấn át.
-- *"Đánh giá chất lượng cụm thế nào?"* → inertia (đã có), bổ sung **Silhouette score**.
-- *"K-Means nhược điểm gì?"* → như trên; nêu thuật toán thay thế.
-- *"Recency/Frequency/Monetary tính từ đâu?"* → snapshot = max(Order Date)+1; Frequency = số đơn riêng biệt; Monetary = tổng Sales.
-- *"Sao Monetary dùng Sales mà không dùng Profit?"* → Sales = giá trị khách mang lại về doanh thu; nếu muốn xét lợi nhuận có thể đổi sang tổng Profit.
+Fourth, it is lightweight and suitable for a small educational dataset. The implemented model is intentionally constrained with `max_depth = 4` and `min_samples_leaf = 30` to reduce overfitting and keep the decision rules readable.
+
+### 1.3 Validation Strategy
+
+The model is evaluated using several layers of evidence:
+
+- **Baseline accuracy**: the accuracy obtained by always predicting the majority class.
+- **Hold-out test set**: a 25% test set not used for training.
+- **Confusion matrix**: a direct view of correct and incorrect predictions for Profit and Loss classes.
+- **Macro F1-score**: a more balanced metric than accuracy when the classes are imbalanced.
+- **5-fold stratified cross-validation**: used to verify that performance is stable across different splits.
+- **Random Forest benchmark**: used as a robustness comparison against an ensemble model.
+- **Validated decision rules**: extracted tree rules are checked against the held-out test set.
+
+This validation design is important because the target distribution is imbalanced: approximately 80.6% of records are profitable and 19.4% are loss-making. Therefore, accuracy alone is not sufficient.
+
+### 1.4 Model Results
+
+| Metric | Value |
+| --- | ---: |
+| Rows used | 9,994 |
+| Class distribution | 80.6% Profit / 19.4% Loss |
+| Baseline accuracy | 0.8063 |
+| Decision Tree test accuracy | 0.9440 |
+| Decision Tree macro F1-score | 0.9033 |
+| 5-fold cross-validation accuracy | 0.9444 +/- 0.0020 |
+| Cross-validation loss precision | 0.9370 |
+| Cross-validation loss recall | 0.7645 |
+| Random Forest benchmark accuracy | 0.9428 |
+
+Confusion matrix on the test set:
+
+| Actual / Predicted | Predicted Loss | Predicted Profit |
+| --- | ---: | ---: |
+| Actual Loss | 369 | 115 |
+| Actual Profit | 25 | 1,990 |
+
+The model improves substantially over the baseline accuracy of 0.8063. However, the confusion matrix shows an important limitation: the model still misses 115 actual loss-making records. This is why the loss recall of approximately 76% must be discussed transparently during the defense.
+
+### 1.5 Validated Business Rule
+
+The strongest extracted rule is:
+
+```text
+Discount > 0.25 AND Category != Technology -> Loss
+```
+
+| Rule | Predicted class | Test support | Correct | Incorrect | Precision |
+| --- | --- | ---: | ---: | ---: | ---: |
+| `Discount > 0.25 AND Category != Technology` | Loss | 318 | 316 | 2 | 99.37% |
+
+This rule is highly meaningful for business interpretation. It indicates that when a product is discounted by more than 25% and is not in the Technology category, the corresponding order line is very likely to be loss-making. The rule covers 318 test records and correctly classifies 316 of them.
+
+### 1.6 Role of the Random Forest Benchmark
+
+The Random Forest benchmark achieves an accuracy of 0.9428, which is very close to the Decision Tree accuracy of 0.9440. This result supports the use of the simpler Decision Tree. If the ensemble model does not materially outperform the single tree, the more interpretable model is preferable for an academic BI project because it provides clearer business rules.
+
+### 1.7 Strengths and Limitations
+
+Strengths:
+
+- Produces interpretable if-then rules.
+- Supports both numerical and categorical predictors after encoding.
+- Handles non-linear decision boundaries.
+- Requires limited preprocessing.
+- Provides feature importance and visual tree evidence.
+
+Limitations:
+
+- May overfit if the tree is not constrained.
+- Can be sensitive to small changes in training data.
+- Decision boundaries are axis-aligned and may be less smooth than other models.
+- The imbalanced target distribution makes loss recall more difficult.
+- A high-precision loss rule does not capture every loss-making transaction.
+
+Possible improvements:
+
+- Tune tree depth and leaf size through grid search.
+- Apply class weighting or resampling to improve loss recall.
+- Test additional features such as profit margin proxies, shipping cost if available, or product-level profitability indicators.
+- Compare with logistic regression, gradient boosting, or calibrated probability models.
 
 ---
 
-## Tóm tắt 30 giây để mở đầu khi bảo vệ
-> "Em dùng 2 thuật toán đại diện 2 nhánh data mining: **Decision Tree** (có giám sát) để **phân lớp đơn hàng lãi/lỗ** — đạt accuracy 94.4%, và quan trọng là **diễn giải được** yếu tố gây lỗ (chủ yếu là Discount); và **K-Means trên RFM** (không giám sát) để **phân khúc 793 khách thành 4 nhóm** (VIP, Trung thành, Phổ thông, Rời bỏ) phục vụ marketing. Em cũng lưu ý dữ liệu phân lớp **mất cân bằng 80/20** nên đánh giá bằng precision/recall chứ không chỉ accuracy."
+## 2. K-Means RFM Customer Segmentation
+
+### 2.1 Problem Formulation
+
+The segmentation task groups customers according to purchasing behavior. The model uses RFM features:
+
+- **Recency**: the number of days since the customer's most recent purchase.
+- **Frequency**: the number of distinct orders placed by the customer.
+- **Monetary**: the total sales value generated by the customer.
+
+The snapshot date is defined as one day after the maximum order date in the dataset. The final segmentation dataset contains 793 customers.
+
+### 2.2 Rationale for Selecting RFM and K-Means
+
+RFM is a standard customer analytics framework. It is suitable because it translates raw transaction history into three business-oriented indicators: how recently a customer purchased, how often the customer purchased, and how much revenue the customer generated.
+
+K-Means is appropriate because it is a simple, widely used unsupervised clustering method. It is useful when the objective is to discover natural customer groups without predefined labels.
+
+The combination of RFM and K-Means is therefore suitable for a BI project because it creates actionable customer segments that can support marketing and retention decisions.
+
+### 2.3 Need for Standardization
+
+K-Means is distance-based and uses Euclidean distance. The three RFM variables are measured on different scales:
+
+- Recency is measured in days.
+- Frequency is measured in order counts.
+- Monetary is measured in sales value.
+
+Without standardization, the Monetary variable would dominate the distance calculation because it has a much larger numerical scale. The model therefore applies `StandardScaler` before clustering. This gives each variable comparable influence in the clustering process.
+
+### 2.4 Cluster Selection
+
+The model uses `k = 4`. This choice is supported by:
+
+- The Elbow Method, which evaluates the reduction in within-cluster inertia as `k` increases.
+- The Silhouette score, which evaluates how well-separated the clusters are.
+- Business interpretability, because four clusters produce distinct and explainable customer groups.
+
+The Silhouette score for `k = 4` is **0.3554**. This indicates a moderate segmentation structure, which is acceptable for behavioral customer data where boundaries between groups are rarely perfectly separated.
+
+The K-Means model uses `n_init = 10` and `random_state = 42`. Multiple initializations reduce sensitivity to random centroid starts, while the random state ensures reproducibility.
+
+### 2.5 Segmentation Results
+
+| Cluster | Segment label | Recency | Frequency | Monetary | Count |
+| ---: | --- | ---: | ---: | ---: | ---: |
+| 0 | Trung thanh / Active | 72.7 | 8.5 | 3,322.2 | 298 |
+| 1 | Pho thong / Trung binh | 101.2 | 4.7 | 1,669.7 | 335 |
+| 2 | VIP / Champions | 123.7 | 8.3 | 9,479.5 | 64 |
+| 3 | Roi bo / Lost | 559.5 | 3.7 | 1,470.2 | 96 |
+
+The cluster labels and colors are intentionally kept stable to remain consistent with previous project notes and visual outputs.
+
+### 2.6 Business Interpretation
+
+**Cluster 2 - VIP / Champions**
+
+This group has the highest monetary value and a high purchase frequency. Although the group is relatively small, it contributes substantial revenue. It should be prioritized for retention programs, premium services, loyalty benefits, and personalized offers.
+
+**Cluster 0 - Trung thanh / Active**
+
+This group has the lowest recency and the highest frequency, indicating recent and repeated purchasing behavior. It is a strong active customer group and can be targeted for cross-selling and progression toward VIP status.
+
+**Cluster 1 - Pho thong / Trung binh**
+
+This is the largest segment. It has moderate recency and lower monetary value. The recommended action is to increase engagement through targeted promotions, bundles, or category-specific offers.
+
+**Cluster 3 - Roi bo / Lost**
+
+This group has very high recency, indicating long inactivity. Win-back campaigns may be used, but promotional cost should be controlled because the monetary value is not high.
+
+### 2.7 Strengths and Limitations
+
+Strengths:
+
+- RFM is easy to explain and widely accepted in customer analytics.
+- K-Means is efficient and reproducible.
+- The resulting clusters are actionable for marketing and retention strategy.
+- The model supports clear visualizations such as scatter plots and RFM heatmaps.
+
+Limitations:
+
+- The number of clusters must be chosen before fitting the model.
+- K-Means assumes roughly compact and spherical clusters.
+- It is sensitive to outliers, especially in Monetary.
+- It works only with numerical variables unless categorical variables are transformed.
+- Cluster boundaries may not represent strict business categories.
+
+Possible alternatives:
+
+- Hierarchical clustering for dendrogram-based interpretation.
+- Gaussian Mixture Models for probabilistic cluster membership.
+- DBSCAN for density-based clusters and outlier detection.
+- RFM scoring rules as a non-machine-learning baseline.
+
+---
+
+## 3. Relationship to the BI Pipeline
+
+The data mining component complements the SQL Server, SSIS, SSAS, Power BI, and Excel components. The warehouse and cube answer descriptive analytical questions such as what happened, where it happened, and which product or customer group contributed most. The data mining models extend the project by addressing predictive and exploratory questions:
+
+- The Decision Tree identifies the conditions under which order lines are likely to become loss-making.
+- K-Means identifies customer segments that require different business actions.
+
+This makes the final BI solution more complete because it combines ETL, dimensional modeling, OLAP analysis, dashboards, and machine learning-based insight generation.
+
+---
+
+## 4. Common Defense Questions and Suggested Answers
+
+**Question: Why use Decision Tree instead of only Random Forest?**
+
+Random Forest is used as a benchmark, but the Decision Tree is retained because it has comparable accuracy and is more interpretable. In this project, rule explanation is more valuable than a small potential gain in predictive performance.
+
+**Question: Is 94.40% accuracy reliable given the class imbalance?**
+
+Accuracy should not be interpreted alone. The baseline accuracy is already 80.63% because most order lines are profitable. Therefore, macro F1-score, loss precision, loss recall, and the confusion matrix are also reported.
+
+**Question: What is the most important business rule from the model?**
+
+The strongest validated rule is `Discount > 0.25 AND Category != Technology -> Loss`, with 99.37% precision on the test set.
+
+**Question: Why is K-Means applied after standardization?**
+
+K-Means uses Euclidean distance. Without standardization, Monetary would dominate the distance calculation because it has a much larger scale than Recency and Frequency.
+
+**Question: Why select four clusters?**
+
+Four clusters are supported by Elbow and Silhouette analysis and produce business-interpretable segments: active customers, average customers, VIP customers, and lost customers.
+
+**Question: Why use Sales as Monetary instead of Profit?**
+
+Sales measures customer revenue contribution, which is the conventional Monetary definition in RFM analysis. Profit-based segmentation could be explored as an extension if the objective changes from revenue value to margin value.
+
+---
+
+## 5. Evidence Files to Include in the Report
+
+Decision Tree outputs:
+
+- `DataMining/outputs/class_balance.png`
+- `DataMining/outputs/confusion_matrix.png`
+- `DataMining/outputs/decision_tree.png`
+- `DataMining/outputs/feature_importance.png`
+- `DataMining/outputs/loss_rules.png`
+- `DataMining/outputs/decision_rules.csv`
+- `DataMining/outputs/loss_rules.csv`
+
+K-Means RFM outputs:
+
+- `DataMining/outputs/elbow_silhouette.png`
+- `DataMining/outputs/elbow.png`
+- `DataMining/outputs/rfm_profile.png`
+- `DataMining/outputs/segments.png`
+- `DataMining/outputs/rfm_profile.csv`
+- `DataMining/outputs/rfm_customers.csv`
+- `DataMining/outputs/model_summary.txt`
+
+---
+
+## 6. Short Academic Defense Statement
+
+The data mining component uses two complementary algorithms. The Decision Tree is a supervised classification model used to predict whether an order line is profitable or loss-making and, more importantly, to extract interpretable rules. The strongest validated rule is that order lines with `Discount > 0.25` and a non-Technology category are predicted as loss-making with 99.37% precision. The K-Means model is an unsupervised segmentation method applied to standardized RFM features for 793 customers. It identifies four stable customer segments: `Trung thanh / Active`, `Pho thong / Trung binh`, `VIP / Champions`, and `Roi bo / Lost`. Together, these methods extend the BI system from descriptive reporting to predictive and behavioral analysis.

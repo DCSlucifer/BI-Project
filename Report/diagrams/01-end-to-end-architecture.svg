@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="660" viewBox="0 0 1200 660" role="img" aria-labelledby="title desc">
+  <title id="title">Superstore BI End-to-End Architecture</title>
+  <desc id="desc">CSV data is loaded into SuperstoreDW, transformed into a star schema, consumed by SSAS, Power BI, Excel, MDX, and Python data mining.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1f2937"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 26px Segoe UI, Arial, sans-serif; fill: #111827; }
+      .subtitle { font: 400 14px Segoe UI, Arial, sans-serif; fill: #4b5563; }
+      .box { rx: 12; ry: 12; stroke-width: 2; }
+      .source { fill: #fff7ed; stroke: #ea580c; }
+      .sql { fill: #eff6ff; stroke: #2563eb; }
+      .warehouse { fill: #dbeafe; stroke: #1d4ed8; }
+      .cube { fill: #ecfdf5; stroke: #059669; }
+      .consumer { fill: #f0fdf4; stroke: #16a34a; }
+      .mining { fill: #fdf2f8; stroke: #db2777; }
+      .label { font: 700 16px Segoe UI, Arial, sans-serif; fill: #111827; text-anchor: middle; }
+      .small { font: 400 13px Segoe UI, Arial, sans-serif; fill: #374151; text-anchor: middle; }
+      .group-label { font: 700 15px Segoe UI, Arial, sans-serif; fill: #1d4ed8; }
+      .arrow { stroke: #1f2937; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .dash { stroke-dasharray: 8 6; }
+      .note { font: 600 13px Segoe UI, Arial, sans-serif; fill: #374151; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="660"/>
+  <text class="title" x="600" y="42" text-anchor="middle">Superstore BI End-to-End Architecture</text>
+  <text class="subtitle" x="600" y="68" text-anchor="middle">Single-database ETL design: CSV to SuperstoreDW landing table, star schema, cube, reports, and mining outputs.</text>
+
+  <rect class="box source" x="50" y="245" width="185" height="110"/>
+  <text class="label" x="142.5" y="282">Sample - Superstore.csv</text>
+  <text class="small" x="142.5" y="307">9,994 order-line rows</text>
+  <text class="small" x="142.5" y="329">Windows-1252 encoding</text>
+
+  <rect class="box sql" x="300" y="120" width="340" height="360"/>
+  <text class="group-label" x="325" y="150">SQL Server Database: SuperstoreDW</text>
+  <rect class="box warehouse" x="355" y="190" width="230" height="105"/>
+  <text class="label" x="470" y="225">dbo.stg_Orders</text>
+  <text class="small" x="470" y="250">Internal landing table</text>
+  <text class="small" x="470" y="272">Raw 1:1 CSV load</text>
+  <rect class="box warehouse" x="355" y="350" width="230" height="105"/>
+  <text class="label" x="470" y="384">Analytical Star Schema</text>
+  <text class="small" x="470" y="409">FactSales</text>
+  <text class="small" x="470" y="431">Five dimensions</text>
+
+  <rect class="box cube" x="710" y="240" width="210" height="120"/>
+  <text class="label" x="815" y="278">SSAS Multidimensional</text>
+  <text class="small" x="815" y="304">Cube: Superstore DW</text>
+  <text class="small" x="815" y="326">DSV from star schema</text>
+
+  <rect class="box consumer" x="990" y="110" width="160" height="82"/>
+  <text class="label" x="1070" y="145">MDX Queries</text>
+  <text class="small" x="1070" y="168">Analytical results</text>
+
+  <rect class="box consumer" x="990" y="232" width="160" height="82"/>
+  <text class="label" x="1070" y="266">Excel</text>
+  <text class="small" x="1070" y="289">PivotTables via cube</text>
+
+  <rect class="box consumer" x="990" y="354" width="160" height="82"/>
+  <text class="label" x="1070" y="388">Power BI</text>
+  <text class="small" x="1070" y="411">Fact + dimension model</text>
+
+  <rect class="box mining" x="355" y="540" width="230" height="85"/>
+  <text class="label" x="470" y="574">Python Data Mining</text>
+  <text class="small" x="470" y="598">Decision Tree + K-Means RFM</text>
+
+  <path class="arrow" d="M 235 300 L 355 242"/>
+  <text class="note" x="258" y="255">SSIS Flat File Source</text>
+  <path class="arrow" d="M 470 295 L 470 350"/>
+  <text class="note" x="492" y="326">ETL transformation</text>
+  <path class="arrow" d="M 585 402 L 710 300"/>
+  <text class="note" x="633" y="342">Data Source + DSV</text>
+  <path class="arrow" d="M 920 285 L 990 151"/>
+  <path class="arrow" d="M 920 300 L 990 273"/>
+  <path class="arrow" d="M 920 318 L 990 395"/>
+  <path class="arrow dash" d="M 142 355 C 170 565 285 585 355 582"/>
+  <text class="note" x="135" y="518">Same source dataset</text>
+
+  <rect x="55" y="585" width="1060" height="38" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="subtitle" x="585" y="609" text-anchor="middle">Key constraint: no separate staging database is used; the landing layer exists inside SuperstoreDW.</text>
+</svg>

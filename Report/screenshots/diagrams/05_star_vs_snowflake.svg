@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="700" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Star Schema Versus Snowflake Schema</title>
+  <desc id="desc">A comparison of the implemented star schema and an alternative snowflake schema for Superstore.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1f2937"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 26px Segoe UI, Arial, sans-serif; fill: #111827; }
+      .subtitle { font: 400 14px Segoe UI, Arial, sans-serif; fill: #4b5563; }
+      .panel { fill: #ffffff; stroke: #cbd5e1; stroke-width: 2; rx: 16; ry: 16; }
+      .fact { fill: #dbeafe; stroke: #2563eb; stroke-width: 2; rx: 10; ry: 10; }
+      .dim { fill: #ecfdf5; stroke: #059669; stroke-width: 2; rx: 10; ry: 10; }
+      .dim2 { fill: #fff7ed; stroke: #ea580c; stroke-width: 2; rx: 10; ry: 10; }
+      .label { font: 700 15px Segoe UI, Arial, sans-serif; fill: #111827; text-anchor: middle; }
+      .small { font: 400 12.5px Segoe UI, Arial, sans-serif; fill: #374151; text-anchor: middle; }
+      .panel-title { font: 700 18px Segoe UI, Arial, sans-serif; fill: #111827; text-anchor: middle; }
+      .arrow { stroke: #1f2937; stroke-width: 2.1; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="700"/>
+  <text class="title" x="600" y="42" text-anchor="middle">Star Schema Versus Snowflake Schema</text>
+  <text class="subtitle" x="600" y="68" text-anchor="middle">The implemented design prioritizes analytical readability and fewer joins for SSAS and Power BI.</text>
+
+  <rect class="panel" x="55" y="105" width="510" height="520"/>
+  <text class="panel-title" x="310" y="145">Implemented Star Schema</text>
+  <text class="subtitle" x="310" y="172" text-anchor="middle">Denormalized dimensions connected directly to FactSales.</text>
+
+  <rect class="fact" x="235" y="315" width="150" height="80"/>
+  <text class="label" x="310" y="350">FactSales</text>
+  <text class="small" x="310" y="373">Measures + FKs</text>
+  <rect class="dim" x="95" y="220" width="170" height="65"/>
+  <text class="label" x="180" y="250">DimProduct</text>
+  <text class="small" x="180" y="270">Product hierarchy</text>
+  <rect class="dim2" x="360" y="220" width="170" height="65"/>
+  <text class="label" x="445" y="250">DimCustomer</text>
+  <text class="small" x="445" y="270">Customer + segment</text>
+  <rect class="dim2" x="95" y="430" width="170" height="65"/>
+  <text class="label" x="180" y="460">DimGeography</text>
+  <text class="small" x="180" y="480">Location hierarchy</text>
+  <rect class="dim" x="360" y="430" width="170" height="65"/>
+  <text class="label" x="445" y="460">DimShipMode</text>
+  <text class="small" x="445" y="480">Shipping context</text>
+  <path class="arrow" d="M 265 255 L 290 315"/>
+  <path class="arrow" d="M 390 255 L 335 315"/>
+  <path class="arrow" d="M 265 462 L 295 395"/>
+  <path class="arrow" d="M 390 462 L 335 395"/>
+  <text class="small" x="310" y="560">Preferred for this project: simple queries, fewer joins,</text>
+  <text class="small" x="310" y="582">and direct compatibility with SSAS/Power BI.</text>
+
+  <rect class="panel" x="635" y="105" width="510" height="520"/>
+  <text class="panel-title" x="890" y="145">Snowflake Schema Alternative</text>
+  <text class="subtitle" x="890" y="172" text-anchor="middle">Normalized dimensions split into additional hierarchy tables.</text>
+
+  <rect class="fact" x="1010" y="315" width="100" height="80"/>
+  <text class="label" x="1060" y="350">FactSales</text>
+  <text class="small" x="1060" y="373">Measures</text>
+
+  <rect class="dim" x="675" y="220" width="135" height="55"/>
+  <text class="label" x="742" y="253">DimCategory</text>
+  <rect class="dim" x="835" y="220" width="135" height="55"/>
+  <text class="label" x="902" y="253">DimSubCategory</text>
+  <rect class="dim" x="995" y="220" width="135" height="55"/>
+  <text class="label" x="1062" y="253">DimProduct</text>
+
+  <rect class="dim2" x="675" y="430" width="135" height="55"/>
+  <text class="label" x="742" y="463">DimRegion</text>
+  <rect class="dim2" x="835" y="430" width="135" height="55"/>
+  <text class="label" x="902" y="463">DimState</text>
+  <rect class="dim2" x="995" y="430" width="135" height="55"/>
+  <text class="label" x="1062" y="463">DimCity</text>
+
+  <path class="arrow" d="M 810 247 L 835 247"/>
+  <path class="arrow" d="M 970 247 L 995 247"/>
+  <path class="arrow" d="M 1062 275 L 1060 315"/>
+  <path class="arrow" d="M 810 457 L 835 457"/>
+  <path class="arrow" d="M 970 457 L 995 457"/>
+  <path class="arrow" d="M 1062 430 L 1060 395"/>
+  <text class="small" x="890" y="560">More normalized, but requires additional joins and adds</text>
+  <text class="small" x="890" y="582">unnecessary complexity for this analytical workload.</text>
+</svg>

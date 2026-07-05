@@ -16,7 +16,10 @@
 
 /* Q1: Sales & Profit by Year and Quarter */
 SELECT { [Measures].[Sales], [Measures].[Profit] } ON COLUMNS,
-NON EMPTY [Order Date].[Calendar].[Year].MEMBERS * [Order Date].[Calendar].[Quarter].MEMBERS ON ROWS
+NON EMPTY
+HIERARCHIZE(
+  DRILLDOWNLEVEL([Order Date].[Calendar].[Year].MEMBERS)
+) ON ROWS
 FROM [Superstore DW];
 
 /* Q2: Sales & Profit by State */
@@ -58,7 +61,10 @@ MEMBER [Measures].[YoY %] AS
       ([Measures].[Sales] - [Measures].[Sales PY]) / [Measures].[Sales PY]),
   FORMAT_STRING = 'Percent'
 SELECT { [Measures].[Sales], [Measures].[Sales PY], [Measures].[YoY %] } ON COLUMNS,
-[Order Date].[Calendar].[Year].MEMBERS ON ROWS
+NONEMPTY(
+  [Order Date].[Calendar].[Year].MEMBERS,
+  [Measures].[Sales]
+) ON ROWS
 FROM [Superstore DW];
 
 /* Q9: Top 10 Customers by Sales */

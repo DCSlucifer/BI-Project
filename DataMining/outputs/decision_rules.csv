@@ -1,0 +1,13 @@
+leaf_id,rule,predicted_class,support_train,support_test,correct_test,incorrect_test,precision,recall_contribution
+21,Discount > 0.25 AND Category = Technology AND Sub-Category = Phones AND Quantity <= 2.50,Loss,33,4,4,0,1.0,0.0083
+17,Discount > 0.25 AND Category != Technology,Loss,904,318,316,2,0.9937,0.6529
+19,Discount > 0.25 AND Category = Technology AND Sub-Category != Phones,Loss,48,14,13,1,0.9286,0.0269
+22,Discount > 0.25 AND Category = Technology AND Sub-Category = Phones AND Quantity > 2.50,Loss,59,13,9,4,0.6923,0.0186
+15,Discount <= 0.25 AND Discount > 0.13 AND Sub-Category = Storage AND Sales > 63.41,Loss,149,45,27,18,0.6,0.0558
+4,Discount <= 0.25 AND Discount <= 0.13 AND Sub-Category != Storage AND Sub-Category != Fasteners,Profit,3186,1048,1046,2,0.9981,0.5191
+7,Discount <= 0.25 AND Discount <= 0.13 AND Sub-Category = Storage AND Sales <= 202.32,Profit,234,75,74,1,0.9867,0.0367
+12,Discount <= 0.25 AND Discount > 0.13 AND Sub-Category != Storage AND Category = Office Supplies,Profit,1409,476,465,11,0.9769,0.2308
+5,Discount <= 0.25 AND Discount <= 0.13 AND Sub-Category != Storage AND Sub-Category = Fasteners,Profit,92,36,35,1,0.9722,0.0174
+8,Discount <= 0.25 AND Discount <= 0.13 AND Sub-Category = Storage AND Sales > 202.32,Profit,169,52,49,3,0.9423,0.0243
+11,Discount <= 0.25 AND Discount > 0.13 AND Sub-Category != Storage AND Category != Office Supplies,Profit,1114,394,305,89,0.7741,0.1514
+14,Discount <= 0.25 AND Discount > 0.13 AND Sub-Category = Storage AND Sales <= 63.41,Profit,98,24,16,8,0.6667,0.0079

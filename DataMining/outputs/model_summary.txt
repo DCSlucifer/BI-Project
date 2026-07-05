@@ -1,0 +1,22 @@
+Superstore Data Mining Summary
+==================================
+
+Decision Tree classification
+- Baseline accuracy: 0.8063
+- Test accuracy: 0.9440
+- Test macro F1: 0.9033
+- 5-fold CV accuracy: 0.9444 +/- 0.0020
+- CV loss precision: 0.9370
+- CV loss recall: 0.7645
+- Random Forest benchmark accuracy: 0.9428
+
+K-Means RFM segmentation
+- Customers: 793
+- k: 4
+- Silhouette score for k=4: 0.3554
+
+Stable cluster names
+- Cluster 0: Trung thanh / Active
+- Cluster 1: Pho thong / Trung binh
+- Cluster 2: VIP / Champions
+- Cluster 3: Roi bo / Lost

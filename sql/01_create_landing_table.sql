@@ -1,11 +1,12 @@
 -- =============================================================
--- 01_create_staging.sql
--- Creates the staging database and raw landing table for the CSV.
+-- 01_create_landing_table.sql
+-- Creates the internal CSV landing table inside the main DW database.
+-- This is not a separate staging database.
 -- Run in SSMS against your local SQL Server instance.
 -- =============================================================
-IF DB_ID('SuperstoreStaging') IS NULL CREATE DATABASE SuperstoreStaging;
+IF DB_ID('SuperstoreDW') IS NULL CREATE DATABASE SuperstoreDW;
 GO
-USE SuperstoreStaging;
+USE SuperstoreDW;
 GO
 IF OBJECT_ID('dbo.stg_Orders') IS NOT NULL DROP TABLE dbo.stg_Orders;
 GO
@@ -33,4 +34,4 @@ CREATE TABLE dbo.stg_Orders (
     Profit       DECIMAL(18,4)
 );
 GO
-PRINT 'SuperstoreStaging.dbo.stg_Orders created.';
+PRINT 'SuperstoreDW.dbo.stg_Orders created.';

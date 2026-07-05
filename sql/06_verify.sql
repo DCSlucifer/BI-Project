@@ -7,7 +7,7 @@
 
 -- (1) Reconciliation: these two rows must match on rows_/sales_/profit_
 SELECT 'staging' AS src, COUNT(*) AS rows_, SUM(Sales) AS sales_, SUM(Profit) AS profit_
-FROM SuperstoreStaging.dbo.stg_Orders
+FROM SuperstoreDW.dbo.stg_Orders
 UNION ALL
 SELECT 'fact', COUNT(*), SUM(Sales), SUM(Profit)
 FROM SuperstoreDW.dbo.FactSales;

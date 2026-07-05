@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">SSAS Cube Architecture</title>
+  <desc id="desc">SSAS reads the SuperstoreDW star schema and exposes dimensions, measures, and calculated members for analysis.</desc>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#1f2937"/>
+    </marker>
+    <style>
+      .bg { fill: #f8fafc; }
+      .title { font: 700 26px Segoe UI, Arial, sans-serif; fill: #111827; }
+      .subtitle { font: 400 14px Segoe UI, Arial, sans-serif; fill: #4b5563; }
+      .box { rx: 12; ry: 12; stroke-width: 2; }
+      .db { fill: #dbeafe; stroke: #2563eb; }
+      .cube { fill: #ecfdf5; stroke: #059669; }
+      .meta { fill: #eef2ff; stroke: #4f46e5; }
+      .calc { fill: #fdf2f8; stroke: #db2777; }
+      .label { font: 700 15px Segoe UI, Arial, sans-serif; fill: #111827; text-anchor: middle; }
+      .small { font: 400 12.5px Segoe UI, Arial, sans-serif; fill: #374151; text-anchor: middle; }
+      .arrow { stroke: #1f2937; stroke-width: 2.1; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1200" height="720"/>
+  <text class="title" x="600" y="42" text-anchor="middle">SSAS Cube Architecture</text>
+  <text class="subtitle" x="600" y="68" text-anchor="middle">The cube is built from the curated star schema only; dbo.stg_Orders is excluded from SSAS.</text>
+
+  <rect class="box db" x="65" y="170" width="210" height="105"/>
+  <text class="label" x="170" y="205">SuperstoreDW</text>
+  <text class="small" x="170" y="230">FactSales + five dimensions</text>
+  <text class="small" x="170" y="252">Analytical schema</text>
+
+  <rect class="box meta" x="345" y="170" width="195" height="105"/>
+  <text class="label" x="442" y="205">Data Source</text>
+  <text class="small" x="442" y="230">Initial Catalog</text>
+  <text class="small" x="442" y="252">SuperstoreDW</text>
+
+  <rect class="box meta" x="610" y="170" width="210" height="105"/>
+  <text class="label" x="715" y="205">Data Source View</text>
+  <text class="small" x="715" y="230">Fact-dimension</text>
+  <text class="small" x="715" y="252">relationships</text>
+
+  <rect class="box cube" x="890" y="165" width="230" height="115"/>
+  <text class="label" x="1005" y="202">Cube: Superstore DW</text>
+  <text class="small" x="1005" y="227">Processed OLAP model</text>
+  <text class="small" x="1005" y="249">for MDX, Excel, and browsing</text>
+
+  <rect class="box cube" x="140" y="410" width="250" height="170"/>
+  <text class="label" x="265" y="446">Dimensions and Hierarchies</text>
+  <text class="small" x="265" y="475">Date: Order and Ship roles</text>
+  <text class="small" x="265" y="499">Product: Category to Product</text>
+  <text class="small" x="265" y="523">Customer: Segment to Customer</text>
+  <text class="small" x="265" y="547">Geography: Region to City</text>
+
+  <rect class="box meta" x="475" y="410" width="250" height="170"/>
+  <text class="label" x="600" y="446">Measures</text>
+  <text class="small" x="600" y="475">Sales, Quantity</text>
+  <text class="small" x="600" y="499">Discount, Profit</text>
+  <text class="small" x="600" y="523">Delivery Days</text>
+  <text class="small" x="600" y="547">Fact Sales Count</text>
+
+  <rect class="box calc" x="810" y="410" width="250" height="170"/>
+  <text class="label" x="935" y="446">Calculated Members</text>
+  <text class="small" x="935" y="475">Profit Margin</text>
+  <text class="small" x="935" y="499">Average Delivery Days</text>
+  <text class="small" x="935" y="523">Optional growth metrics</text>
+
+  <path class="arrow" d="M 275 222 L 345 222"/>
+  <path class="arrow" d="M 540 222 L 610 222"/>
+  <path class="arrow" d="M 820 222 L 890 222"/>
+  <path class="arrow" d="M 1005 280 C 930 355 760 380 600 410"/>
+  <path class="arrow" d="M 1005 280 C 855 385 490 390 265 410"/>
+  <path class="arrow" d="M 1005 280 C 1005 350 960 380 935 410"/>
+
+  <rect x="120" y="635" width="960" height="40" rx="8" fill="#ffffff" stroke="#cbd5e1"/>
+  <text class="subtitle" x="600" y="660" text-anchor="middle">The cube consumes FactSales and dimensions; internal ETL landing data remains outside the cube.</text>
+</svg>
